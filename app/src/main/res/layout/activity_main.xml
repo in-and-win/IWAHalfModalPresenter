@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/activity_main"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="com.inandwin.halfmodalpresenterdemo.MainActivity">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Hello World!" />
+
+    <com.inandwin.halfmodalpresenter.HalfModalView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/halfModal">
+        <com.inandwin.halfmodalpresenter.HalfModalTriggerView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@drawable/radius"
+            android:paddingLeft="24dp"
+            android:paddingRight="16dp">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="50dp"
+                android:text="@string/filter_by"
+                android:gravity="center_vertical"
+                android:textColor="@android:color/white"
+                android:textSize="18sp"/>
+            <ImageView
+                android:layout_width="8dp"
+                android:layout_height="8dp"
+                android:src="@drawable/caret_vertical"
+                android:layout_gravity="center_vertical"
+                android:layout_marginLeft="8dp"
+                android:layout_marginTop="4dp"/>
+        </com.inandwin.halfmodalpresenter.HalfModalTriggerView>
+        <com.inandwin.halfmodalpresenter.HalfModalExpandedView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@color/other">
+
+            <CheckedTextView
+                android:text="CheckedTextView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/checkedTextView"
+                android:textColor="@android:color/white"
+                android:layout_weight="1" />
+
+            <CheckBox
+                android:text="CheckBox"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/checkBox2"
+                android:textColor="@android:color/white"
+                android:layout_weight="1" />
+
+            <CheckBox
+                android:text="CheckBox"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/checkBox"
+                android:textColor="@android:color/white"
+                android:layout_weight="1" />
+        </com.inandwin.halfmodalpresenter.HalfModalExpandedView>
+    </com.inandwin.halfmodalpresenter.HalfModalView>
+</RelativeLayout>
