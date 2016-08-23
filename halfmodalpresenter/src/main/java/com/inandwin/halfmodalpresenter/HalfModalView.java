@@ -240,23 +240,27 @@ public class HalfModalView extends ViewGroup implements View.OnClickListener {
         canvas.clipPath(mClipPath);
     }
 
-    @Override
-    public void onClick(View v) {
+    public void toggleExpansion() {
         isExpanded = !isExpanded;
-        if (isExpanded){
+        if (isExpanded) {
             isExpanding = true;
             startTime = System.currentTimeMillis();
             getTriggerView().setVisibility(GONE);
             getTriggerView().setOnClickListener(null);
             getExpandedView().setVisibility(VISIBLE);
             dismissHitbox.setVisibility(VISIBLE);
-        }else {
+        } else {
             isStretching = true;
             startTime = System.currentTimeMillis();
             getExpandedView().setVisibility(GONE);
             dismissHitbox.setOnClickListener(null);
         }
         invalidate();
+    }
+
+    @Override
+    public void onClick(View v) {
+        toggleExpansion();
     }
 
     public void setBackgroundButtonTrigger(Drawable backgroundButton) {
