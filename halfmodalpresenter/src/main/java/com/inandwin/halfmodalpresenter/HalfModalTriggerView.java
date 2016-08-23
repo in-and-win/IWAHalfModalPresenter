@@ -1,12 +1,13 @@
 package com.inandwin.halfmodalpresenter;
 
+import android.annotation.TargetApi;
 import android.content.Context;
+import android.os.Build;
 import android.util.AttributeSet;
-import android.view.View;
 import android.widget.LinearLayout;
 
 /**
- * Created by raphaelbischof on 22/08/16.
+ * Represents the view used as a button that launches the view expansion
  */
 public class HalfModalTriggerView extends LinearLayout {
     public HalfModalTriggerView(Context context) {
@@ -17,6 +18,7 @@ public class HalfModalTriggerView extends LinearLayout {
         super(context, attrs);
     }
 
+    @TargetApi(Build.VERSION_CODES.HONEYCOMB)
     public HalfModalTriggerView(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
     }

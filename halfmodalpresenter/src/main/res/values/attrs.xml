@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <declare-styleable name="HalfModalView">
+        <attr name="positionFromTop" format="float" />
+        <attr name="backgroundButtonExpanded" format="reference" />
+        <attr name="backgroundButtonTrigger" format="reference" />
+        <attr name="fps" format="float" />
+        <attr name="animationLength" format="integer" />
+        <attr name="animationFirstPartLength" format="integer" />
+    </declare-styleable>
+</resources>

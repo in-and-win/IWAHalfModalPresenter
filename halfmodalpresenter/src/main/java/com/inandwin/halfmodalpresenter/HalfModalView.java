@@ -1,13 +1,13 @@
 package com.inandwin.halfmodalpresenter;
 
 import android.content.Context;
+import android.content.res.TypedArray;
 import android.graphics.Canvas;
 import android.graphics.Path;
 import android.graphics.RectF;
 import android.graphics.drawable.Drawable;
 import android.support.annotation.Nullable;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 
@@ -21,15 +21,18 @@ public class HalfModalView extends ViewGroup implements View.OnClickListener {
     private boolean isExpanded = false;
 
     @Nullable
-    private Drawable backgroundButtonTrigger;
+    private Drawable mBackgroundButtonTrigger;
     @Nullable
-    private Drawable backgroundButtonExpanded;
+    private Drawable mBackgroundButtonExpanded;
+    private float mPositionFromTop;
+
     private boolean isExpanding = false;
     private boolean isStretching = false;
     private int mFps = 120;
-    private int animationLength = 500;
-    private int firstAnimationLength = 80;
+    private int mAnimationLength = 300;
+    private int mAnimationFirstPartLength = 60;
     private long startTime;
+    private View dismissHitbox;
 
     private Path mClipPath = new Path();
     private RectF mRectMask = new RectF();
@@ -37,21 +40,41 @@ public class HalfModalView extends ViewGroup implements View.OnClickListener {
 
     public HalfModalView(Context context) {
         super(context);
-        initPaint();
+        initPaint(context);
     }
 
     public HalfModalView(Context context, AttributeSet attrs) {
         super(context, attrs);
-        initPaint();
+        initAttrs(context, attrs);
+        initPaint(context);
     }
 
     public HalfModalView(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
-        initPaint();
+        initAttrs(context, attrs);
+        initPaint(context);
     }
 
-    private void initPaint(){
+    private void initAttrs(Context context, AttributeSet attrs) {
+        TypedArray a = context.getTheme().obtainStyledAttributes(attrs, R.styleable.HalfModalView, 0, 0);
+
+        try {
+            mFps = a.getInteger(R.styleable.HalfModalView_fps, 120);
+            mAnimationLength = a.getInteger(R.styleable.HalfModalView_animationLength, 300);
+            mAnimationFirstPartLength = a.getInteger(R.styleable.HalfModalView_animationFirstPartLength, 60);
+            mBackgroundButtonExpanded = a.getDrawable(R.styleable.HalfModalView_backgroundButtonExpanded);
+            mBackgroundButtonTrigger = a.getDrawable(R.styleable.HalfModalView_backgroundButtonTrigger);
+            mPositionFromTop = a.getFloat(R.styleable.HalfModalView_positionFromTop, 0.8f);
+        } finally {
+            a.recycle();
+        }
+
+    }
+
+    private void initPaint(Context context) {
         setWillNotDraw(false);
+        dismissHitbox = new View(context);
+        this.addView(dismissHitbox);
     }
 
     @Override
@@ -61,13 +84,20 @@ public class HalfModalView extends ViewGroup implements View.OnClickListener {
             getTriggerView().setVisibility(GONE);
         }else{
             getExpandedView().setVisibility(GONE);
+            dismissHitbox.setVisibility(GONE);
         }
         if (getChildCount()>1){
             showButton(l,t,r,b);
             showPanel(l,t,r,b);
+            showDismissHitbox(l, t, r, b);
         }else{
             throw new IllegalArgumentException("HalfModalView must have two child views : HalfModalTriggerView and HalfModalExpandedView");
         }
+    }
+
+    private void showDismissHitbox(int l, int t, int r, int b) {
+        int positionFromBottom = t + (b - t) / 2;
+        dismissHitbox.layout(l, t, r, positionFromBottom);
     }
 
     private void showPanel(int l, int t, int r, int b) {
@@ -81,8 +111,7 @@ public class HalfModalView extends ViewGroup implements View.OnClickListener {
             int buttonHeight = triggerView.getMeasuredHeight();
             int buttonWidth = triggerView.getMeasuredWidth();
             int positionFromLeft = (r-l)/2-buttonWidth/2;
-            //TODO: Make that float (0.9) editable from xml
-            int positionFromTop = (int) (((float)(b-t))*0.8f);
+        int positionFromTop = (int) (((float) (b - t)) * mPositionFromTop);
             triggerView.layout(positionFromLeft,positionFromTop,positionFromLeft+buttonWidth,positionFromTop+buttonHeight);
     }
 
@@ -91,6 +120,8 @@ public class HalfModalView extends ViewGroup implements View.OnClickListener {
             return (HalfModalTriggerView) getChildAt(0);
         }else if (getChildAt(1) instanceof HalfModalTriggerView){
             return (HalfModalTriggerView) getChildAt(1);
+        } else if (getChildAt(2) instanceof HalfModalTriggerView) {
+            return (HalfModalTriggerView) getChildAt(2);
         }else {
             throw new IllegalArgumentException("HalfModalView does not contain an HalfModalTriggerView");
         }
@@ -101,6 +132,8 @@ public class HalfModalView extends ViewGroup implements View.OnClickListener {
             return (HalfModalExpandedView) getChildAt(0);
         }else if (getChildAt(1) instanceof HalfModalExpandedView){
             return (HalfModalExpandedView) getChildAt(1);
+        } else if (getChildAt(2) instanceof HalfModalExpandedView) {
+            return (HalfModalExpandedView) getChildAt(2);
         }else {
             throw new IllegalArgumentException("HalfModalView does not contain an HalfModalExpandedView");
         }
@@ -122,41 +155,41 @@ public class HalfModalView extends ViewGroup implements View.OnClickListener {
         if (isExpanding){
             boolean endExpanding = false;
             long elapsedTime = System.currentTimeMillis() - startTime;
-            if (backgroundButtonTrigger !=null && animationLength>elapsedTime && elapsedTime/(float)firstAnimationLength<=1){
+            if (mBackgroundButtonTrigger != null && mAnimationLength > elapsedTime && elapsedTime / (float) mAnimationFirstPartLength <= 1) {
                 mClipPath.reset();
-                drawPositionForFirst(elapsedTime/(float)firstAnimationLength, canvas);
-                backgroundButtonTrigger.setBounds(getExpandedView().getLeft(), getExpandedView().getTop(), getExpandedView().getRight(), getExpandedView().getBottom());
-                backgroundButtonTrigger.draw(canvas);
+                drawPositionForFirst(elapsedTime / (float) mAnimationFirstPartLength, canvas);
+                mBackgroundButtonTrigger.setBounds(getExpandedView().getLeft(), getExpandedView().getTop(), getExpandedView().getRight(), getExpandedView().getBottom());
+                mBackgroundButtonTrigger.draw(canvas);
                 postInvalidateDelayed(1000/mFps);
-            } else if (backgroundButtonExpanded !=null && animationLength>elapsedTime) {
+            } else if (mBackgroundButtonExpanded != null && mAnimationLength > elapsedTime) {
                 mClipPath.reset();
-                drawPositionForSecond((elapsedTime-(float)firstAnimationLength)/((float)animationLength-(float)firstAnimationLength), canvas);
-                backgroundButtonExpanded.setBounds(getExpandedView().getLeft(), getExpandedView().getTop(), getExpandedView().getRight(), getExpandedView().getBottom());
-                backgroundButtonExpanded.draw(canvas);
+                drawPositionForSecond((elapsedTime - (float) mAnimationFirstPartLength) / ((float) mAnimationLength - (float) mAnimationFirstPartLength), canvas);
+                mBackgroundButtonExpanded.setBounds(getExpandedView().getLeft(), getExpandedView().getTop(), getExpandedView().getRight(), getExpandedView().getBottom());
+                mBackgroundButtonExpanded.draw(canvas);
                 postInvalidateDelayed(1000/mFps);
             }else{
                 endExpanding = true;
             }
             if (endExpanding){
-                this.setOnClickListener(this);
+                dismissHitbox.setOnClickListener(this);
                 isExpanding = false;
             }
         }else if (isStretching){
             boolean endStretching = false;
             long elapsedTime = System.currentTimeMillis() - startTime;
-            if (backgroundButtonTrigger !=null && animationLength>elapsedTime && elapsedTime/(float)(animationLength-firstAnimationLength)<=1){
+            if (mBackgroundButtonExpanded != null && mAnimationLength > elapsedTime && elapsedTime / (float) (mAnimationLength - mAnimationFirstPartLength) <= 1) {
                 mClipPath.reset();
-                float ratioElapsed = (((float)(animationLength-firstAnimationLength)-elapsedTime))/(float)(animationLength-firstAnimationLength);
+                float ratioElapsed = (((float) (mAnimationLength - mAnimationFirstPartLength) - elapsedTime)) / (float) (mAnimationLength - mAnimationFirstPartLength);
                 drawPositionForSecond(ratioElapsed, canvas);
-                backgroundButtonExpanded.setBounds(getExpandedView().getLeft(), getExpandedView().getTop(), getExpandedView().getRight(), getExpandedView().getBottom());
-                backgroundButtonExpanded.draw(canvas);
+                mBackgroundButtonExpanded.setBounds(getExpandedView().getLeft(), getExpandedView().getTop(), getExpandedView().getRight(), getExpandedView().getBottom());
+                mBackgroundButtonExpanded.draw(canvas);
                 postInvalidateDelayed(1000/mFps);
-            } else if (backgroundButtonExpanded !=null && animationLength>elapsedTime) {
+            } else if (mBackgroundButtonTrigger != null && mAnimationLength > elapsedTime) {
                 mClipPath.reset();
-                float ratioElapsed = (firstAnimationLength+((float)(animationLength-firstAnimationLength)-elapsedTime))/(float)firstAnimationLength;
+                float ratioElapsed = (mAnimationFirstPartLength + ((float) (mAnimationLength - mAnimationFirstPartLength) - elapsedTime)) / (float) mAnimationFirstPartLength;
                 drawPositionForFirst(ratioElapsed, canvas);
-                backgroundButtonTrigger.setBounds(getExpandedView().getLeft(), getExpandedView().getTop(), getExpandedView().getRight(), getExpandedView().getBottom());
-                backgroundButtonTrigger.draw(canvas);
+                mBackgroundButtonTrigger.setBounds(getExpandedView().getLeft(), getExpandedView().getTop(), getExpandedView().getRight(), getExpandedView().getBottom());
+                mBackgroundButtonTrigger.draw(canvas);
                 postInvalidateDelayed(1000/mFps);
             }else{
                 endStretching = true;
@@ -216,20 +249,21 @@ public class HalfModalView extends ViewGroup implements View.OnClickListener {
             getTriggerView().setVisibility(GONE);
             getTriggerView().setOnClickListener(null);
             getExpandedView().setVisibility(VISIBLE);
+            dismissHitbox.setVisibility(VISIBLE);
         }else {
             isStretching = true;
             startTime = System.currentTimeMillis();
             getExpandedView().setVisibility(GONE);
-            this.setOnClickListener(null);
+            dismissHitbox.setOnClickListener(null);
         }
         invalidate();
     }
 
     public void setBackgroundButtonTrigger(Drawable backgroundButton) {
-        this.backgroundButtonTrigger = backgroundButton;
+        this.mBackgroundButtonTrigger = backgroundButton;
     }
 
     public void setBackgroundButtonExpanded(Drawable backgroundButtonExpanded) {
-        this.backgroundButtonExpanded = backgroundButtonExpanded;
+        this.mBackgroundButtonExpanded = backgroundButtonExpanded;
     }
 }
