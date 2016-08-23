@@ -266,4 +266,9 @@ public class HalfModalView extends ViewGroup implements View.OnClickListener {
     public void setBackgroundButtonExpanded(Drawable backgroundButtonExpanded) {
         this.mBackgroundButtonExpanded = backgroundButtonExpanded;
     }
+
+    public void setPositionFromTop(float positionFromTop) {
+        this.mPositionFromTop = positionFromTop;
+        requestLayout();
+    }
 }

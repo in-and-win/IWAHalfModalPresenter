@@ -43,7 +43,7 @@ ext {
     siteUrl = 'https://github.com/in-and-win/IWAHalfModalPresenter'
     gitUrl = 'https://github.com/in-and-win/IWAHalfModalPresenter.git'
 
-    libraryVersion = '0.0.1'
+    libraryVersion = '0.0.2'
 
     developerId = 'rbische'
     developerName = 'Raphael Bischof'
