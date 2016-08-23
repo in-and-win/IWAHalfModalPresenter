@@ -7,8 +7,8 @@ android {
     defaultConfig {
         minSdkVersion 10
         targetSdkVersion 23
-        versionCode 3
-        versionName "0.0.3"
+        versionCode 4
+        versionName "0.0.4"
 
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
 
@@ -43,7 +43,7 @@ ext {
     siteUrl = 'https://github.com/in-and-win/IWAHalfModalPresenter'
     gitUrl = 'https://github.com/in-and-win/IWAHalfModalPresenter.git'
 
-    libraryVersion = '0.0.3'
+    libraryVersion = '0.0.4'
 
     developerId = 'rbische'
     developerName = 'Raphael Bischof'
