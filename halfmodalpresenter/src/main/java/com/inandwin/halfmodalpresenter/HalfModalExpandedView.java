@@ -12,14 +12,21 @@ import android.widget.LinearLayout;
 public class HalfModalExpandedView extends LinearLayout {
     public HalfModalExpandedView(Context context) {
         super(context);
+        commonInit();
     }
 
     public HalfModalExpandedView(Context context, AttributeSet attrs) {
         super(context, attrs);
+        commonInit();
     }
 
     @TargetApi(Build.VERSION_CODES.HONEYCOMB)
     public HalfModalExpandedView(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
+        commonInit();
+    }
+
+    private void commonInit() {
+        this.setClickable(true);
     }
 }

@@ -1,4 +1,7 @@
 <resources>
     <string name="app_name">HalfModalPresenterDemo</string>
     <string name="filter_by">Filter by</string>
+    <string name="is_opened_saturday">Is opened saturday</string>
+    <string name="saturday_opening">Saturday opening</string>
+    <string name="close">close</string>
 </resources>
