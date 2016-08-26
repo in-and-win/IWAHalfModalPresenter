@@ -225,7 +225,7 @@ public class HalfModalView extends ViewGroup implements View.OnClickListener {
         canvas.clipPath(mClipPath);
     }
 
-    public void drawPositionForFirst(float ratioElapsed, Canvas canvas) {
+    private void drawPositionForFirst(float ratioElapsed, Canvas canvas) {
         float verticalDelta = 35;
         float horizontalDelta = 15;
         float left = getTriggerView().getLeft() + ratioElapsed*horizontalDelta;
